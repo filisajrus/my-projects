@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATELIER — Architecture Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   CSS VARIABLES & RESET
+   ═══════════════════════════════════════════ */
+:root {
+  --bg-primary: #f4f1ec;
+  --bg-secondary: #eae5dd;
+  --bg-dark: #1a1917;
+  --text-primary: #1a1917;
+  --text-secondary: #6b6560;
+  --text-light: #f4f1ec;
+  --accent: #c4a77d;
+  --accent-dark: #a68b63;
+  --border: #d4cfc7;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', 'Helvetica Neue', sans-serif;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* ═══════════════════════════════════════════
+   NOISE TEXTURE OVERLAY
+   ═══════════════════════════════════════════ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ═══════════════════════════════════════════
+   LOADING SCREEN
+   ═══════════════════════════════════════════ */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: var(--bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s var(--ease-out), visibility 0.8s;
+}
+
+.loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loader-text {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 300;
+  color: var(--text-light);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  overflow: hidden;
+}
+
+.loader-text span {
+  display: inline-block;
+  animation: slideUp 0.6s var(--ease-out) forwards;
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+@keyframes slideUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════ */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1.5rem 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  mix-blend-mode: difference;
+  transition: padding 0.4s var(--ease-out);
+}
+
+.nav.scrolled {
+  padding: 1rem 3rem;
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #fff;
+  position: relative;
+  padding-bottom: 2px;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: #fff;
+  transition: width 0.4s var(--ease-out);
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+/* ═══════════════════════════════════════════
+   HERO SECTION
+   ═══════════════════════════════════════════ */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 600px;
+  display: flex;
+  align-items: flex-end;
+  padding: 4rem 3rem;
+  background: var(--bg-dark);
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, transparent 30%, rgba(26, 25, 23, 0.85) 100%),
+    url('https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1920&q=80') center/cover no-repeat;
+  transform: scale(1.1);
+  transition: transform 8s linear;
+}
+
+.hero-bg.loaded {
+  transform: scale(1);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+}
+
+.hero-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.8s var(--ease-out) 0.8s forwards;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 300;
+  line-height: 0.95;
+  color: var(--text-light);
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  transform: translateY(40px);
+  animation: fadeInUp 1s var(--ease-out) 1s forwards;
+}
+
+.hero-title em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--accent);
+}
+
+.hero-desc {
+  font-size: 1.05rem;
+  font-weight: 300;
+  color: rgba(244, 241, 236, 0.7);
+  max-width: 500px;
+  line-height: 1.7;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.8s var(--ease-out) 1.2s forwards;
+}
+
+.hero-scroll {
+  position: absolute;
+  bottom: 3rem;
+  right: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: rgba(244, 241, 236, 0.5);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: fadeInUp 0.8s var(--ease-out) 1.5s forwards;
+}
+
+.hero-scroll-line {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 1; transform: scaleY(1); }
+  50% { opacity: 0.4; transform: scaleY(0.6); }
+}
+
+@keyframes fadeInUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════
+   SECTION SHARED
+   ═══════════════════════════════════════════ */
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.section-number {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  min-width: 40px;
+}
+
+/* ═══════════════════════════════════════════
+   FILTER CONTROLS
+   ═══════════════════════════════════════════ */
+.filters {
+  padding: 0 3rem;
+  margin-bottom: 2rem;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.6rem 1.5rem;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  transition: all 0.35s var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+
+.filter-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bg-dark);
+  transform: translateY(100%);
+  transition: transform 0.35s var(--ease-out);
+}
+
+.filter-btn span {
+  position: relative;
+  z-index: 1;
+  transition: color 0.35s var(--ease-out);
+}
+
+.filter-btn:hover::before,
+.filter-btn.active::before {
+  transform: translateY(0);
+}
+
+.filter-btn:hover span,
+.filter-btn.active span {
+  color: var(--text-light);
+}
+
+.filter-btn.active {
+  border-color: var(--bg-dark);
+}
+
+/* ═══════════════════════════════════════════
+   PROJECTS SECTION
+   ═══════════════════════════════════════════ */
+.projects {
+  padding: 6rem 3rem;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 2rem;
+}
+
+/* ═══════════════════════════════════════════
+   PROJECT CARD
+   ═══════════════════════════════════════════ */
+.project-card {
+  position: relative;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(60px);
+  transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+}
+
+.project-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.project-card.filtering-out {
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+  position: absolute;
+  visibility: hidden;
+}
+
+.project-img-wrap {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--bg-secondary);
+}
+
+.project-img-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(26, 25, 23, 0.5) 100%);
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-out);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.project-card:hover .project-img-wrap::after {
+  opacity: 1;
+}
+
+/* Card carousel track */
+.card-carousel {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s var(--ease-out);
+}
+
+.card-carousel-slide {
+  min-width: 100%;
+  height: 100%;
+}
+
+.project-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s var(--ease-out);
+}
+
+.project-card:hover .project-img {
+  transform: scale(1.06);
+}
+
+/* Card dot indicators */
+.card-dots {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+}
+
+.project-card:hover .card-dots {
+  opacity: 1;
+}
+
+.card-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(244, 241, 236, 0.4);
+  cursor: pointer;
+  transition: all 0.3s var(--ease-out);
+  border: none;
+  padding: 0;
+}
+
+.card-dot.active {
+  background: var(--text-light);
+  transform: scale(1.3);
+}
+
+/* Card prev/next arrows */
+.card-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 25, 23, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out), background 0.3s;
+}
+
+.project-card:hover .card-arrow {
+  opacity: 1;
+}
+
+.card-arrow:hover {
+  background: rgba(26, 25, 23, 0.8);
+}
+
+.card-arrow svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--text-light);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.card-arrow--prev { left: 0.75rem; }
+.card-arrow--next { right: 0.75rem; }
+
+/* Hide arrows when only 1 image */
+.card-arrow[hidden],
+.card-dots[hidden] {
+  display: none;
+}
+
+.project-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.5s var(--ease-out);
+}
+
+.project-card:hover .project-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.project-overlay-text {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-light);
+}
+
+.project-overlay-icon {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(244, 241, 236, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.35s var(--ease-out);
+}
+
+.project-overlay-icon:hover {
+  background: var(--text-light);
+  border-color: var(--text-light);
+}
+
+.project-overlay-icon:hover svg {
+  stroke: var(--bg-dark);
+}
+
+.project-overlay-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--text-light);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.project-info {
+  padding: 1.25rem 0 0;
+}
+
+.project-category {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-dark);
+  margin-bottom: 0.5rem;
+}
+
+.project-name {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s var(--ease-out);
+}
+
+.project-card:hover .project-name {
+  color: var(--accent-dark);
+}
+
+.project-desc {
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+/* ═══════════════════════════════════════════
+   STATEMENT SECTION
+   ═══════════════════════════════════════════ */
+.statement {
+  padding: 8rem 3rem;
+  background: var(--bg-dark);
+  position: relative;
+  overflow: hidden;
+}
+
+.statement::before {
+  content: '"';
+  position: absolute;
+  top: 2rem;
+  left: 3rem;
+  font-family: var(--font-display);
+  font-size: 20rem;
+  color: rgba(196, 167, 125, 0.06);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.statement-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text-light);
+  line-height: 1.4;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 1s var(--ease-out);
+}
+
+.statement-text.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.statement-author {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s var(--ease-out) 0.2s;
+}
+
+.statement-author.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════ */
+.footer {
+  padding: 4rem 3rem;
+  background: var(--bg-dark);
+  border-top: 1px solid rgba(244, 241, 236, 0.08);
+}
+
+.footer-inner {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 4rem;
+  align-items: start;
+}
+
+.footer-brand {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+.footer-tagline {
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: rgba(244, 241, 236, 0.4);
+  max-width: 300px;
+  line-height: 1.6;
+}
+
+.footer-col h4 {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.25rem;
+}
+
+.footer-col a {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: rgba(244, 241, 236, 0.6);
+  margin-bottom: 0.6rem;
+  transition: color 0.3s;
+}
+
+.footer-col a:hover {
+  color: var(--text-light);
+}
+
+.footer-bottom {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(244, 241, 236, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-copy {
+  font-size: 0.75rem;
+  color: rgba(244, 241, 236, 0.3);
+}
+
+.footer-socials {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.footer-socials a {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(244, 241, 236, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.35s var(--ease-out);
+}
+
+.footer-socials a:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.footer-socials svg {
+  width: 14px;
+  height: 14px;
+  fill: rgba(244, 241, 236, 0.5);
+  transition: fill 0.35s;
+}
+
+.footer-socials a:hover svg {
+  fill: var(--bg-dark);
+}
+
+/* ═══════════════════════════════════════════
+   LIGHTBOX / MODAL
+   ═══════════════════════════════════════════ */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background: rgba(26, 25, 23, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.5s var(--ease-out);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.lightbox.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.lightbox-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 90vw;
+  max-height: 70vh;
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.5s var(--ease-out);
+}
+
+.lightbox.open .lightbox-stage {
+  transform: scale(1) translateY(0);
+}
+
+.lightbox-img {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  transition: opacity 0.3s var(--ease-out);
+}
+
+.lightbox-img.fading {
+  opacity: 0.3;
+}
+
+/* Lightbox nav arrows */
+.lightbox-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid rgba(244, 241, 236, 0.2);
+  background: rgba(26, 25, 23, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.35s var(--ease-out);
+  z-index: 10;
+  padding: 0;
+}
+
+.lightbox-arrow:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.lightbox-arrow svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-light);
+  stroke-width: 1.5;
+  fill: none;
+  transition: stroke 0.35s;
+}
+
+.lightbox-arrow:hover svg {
+  stroke: var(--bg-dark);
+}
+
+.lightbox-arrow--prev { left: -60px; }
+.lightbox-arrow--next { right: -60px; }
+
+/* Caption below main image */
+.lightbox-caption {
+  text-align: center;
+  margin-top: 1.25rem;
+}
+
+.lightbox-caption-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--text-light);
+  font-weight: 300;
+}
+
+.lightbox-caption-cat {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: 0.25rem;
+}
+
+.lightbox-counter {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: rgba(244, 241, 236, 0.4);
+  margin-top: 0.4rem;
+}
+
+/* Thumbnail strip */
+.lightbox-thumbs {
+  display: flex;
+  gap: 8px;
+  margin-top: 1.5rem;
+  padding: 0.5rem;
+  max-width: 90vw;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(196, 167, 125, 0.3) transparent;
+}
+
+.lightbox-thumbs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.lightbox-thumbs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lightbox-thumbs::-webkit-scrollbar-thumb {
+  background: rgba(196, 167, 125, 0.3);
+  border-radius: 2px;
+}
+
+.lightbox-thumb {
+  flex-shrink: 0;
+  width: 64px;
+  height: 48px;
+  object-fit: cover;
+  cursor: pointer;
+  opacity: 0.4;
+  border: 2px solid transparent;
+  transition: all 0.3s var(--ease-out);
+}
+
+.lightbox-thumb:hover {
+  opacity: 0.7;
+}
+
+.lightbox-thumb.active {
+  opacity: 1;
+  border-color: var(--accent);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.3s var(--ease-out);
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.lightbox-close:hover {
+  transform: rotate(90deg);
+}
+
+.lightbox-close svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text-light);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .projects-grid {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .footer-inner > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav {
+    padding: 1rem 1.5rem;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .hero {
+    padding: 3rem 1.5rem;
+  }
+
+  .hero-scroll {
+    display: none;
+  }
+
+  .projects {
+    padding: 4rem 1.5rem;
+  }
+
+  .filters {
+    padding: 0 1.5rem;
+  }
+
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .statement {
+    padding: 5rem 1.5rem;
+  }
+
+  .footer {
+    padding: 3rem 1.5rem;
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .lightbox-arrow--prev { left: 0.5rem; }
+  .lightbox-arrow--next { right: 0.5rem; }
+
+  .lightbox-arrow {
+    width: 40px;
+    height: 40px;
+  }
+
+  .lightbox-thumb {
+    width: 52px;
+    height: 40px;
+  }
+
+  /* Show card dots by default on touch */
+  .card-dots { opacity: 1; }
+  .card-arrow { opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .filter-bar {
+    gap: 0.35rem;
+  }
+
+  .filter-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.65rem;
+  }
+
+  .project-name {
+    font-size: 1.35rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ LOADER ═══════════ -->
+<div class="loader" id="loader">
+  <div class="loader-text" id="loaderText"></div>
+</div>
+
+<!-- ═══════════ NAVIGATION ═══════════ -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-logo">Atelier</a>
+  <ul class="nav-links">
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#philosophy">Philosophy</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero" id="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-content">
+    <span class="hero-tag">Architecture & Design Studio</span>
+    <h1 class="hero-title">Shaping Space,<br><em>Defining</em> Form</h1>
+    <p class="hero-desc">We craft environments that balance material honesty with spatial poetry — where concrete meets light, and structure becomes narrative.</p>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="hero-scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══════════ PROJECTS ═══════════ -->
+<section class="projects" id="projects">
+  <div class="section-header">
+    <span class="section-number">01</span>
+    <h2 class="section-title">Selected Works</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all"><span>All</span></button>
+      <button class="filter-btn" data-filter="residential"><span>Residential</span></button>
+      <button class="filter-btn" data-filter="commercial"><span>Commercial</span></button>
+      <button class="filter-btn" data-filter="cultural"><span>Cultural</span></button>
+      <button class="filter-btn" data-filter="urban"><span>Urban</span></button>
+    </div>
+  </div>
+
+  <div class="projects-grid" id="projectsGrid">
+    <!-- Cards injected by JS -->
+  </div>
+</section>
+
+<!-- ═══════════ STATEMENT ═══════════ -->
+<section class="statement" id="philosophy">
+  <p class="statement-text" id="statementText">Architecture should speak of its time and place, but yearn for timelessness. We believe every structure holds a conversation between the earth it stands on and the sky it reaches toward.</p>
+  <p class="statement-author" id="statementAuthor">— Studio Philosophy</p>
+</section>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer" id="contact">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Atelier</div>
+      <p class="footer-tagline">An architecture practice devoted to the dialogue between structure, light, and the human experience of space.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="mailto:studio@atelier-arch.com">studio@atelier-arch.com</a>
+      <a href="tel:+12125551234">+1 212 555 1234</a>
+      <a>47 Stone Street, New York, NY 10004</a>
+    </div>
+    <div class="footer-col">
+      <h4>Navigation</h4>
+      <a href="#projects">Projects</a>
+      <a href="#philosophy">Philosophy</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">&copy; 2026 Atelier Architecture. All rights reserved.</span>
+    <div class="footer-socials">
+      <a href="#" aria-label="Instagram">
+        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>
+      </a>
+      <a href="#" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      </a>
+      <a href="#" aria-label="Pinterest">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.08 2.46 7.58 5.97 9.1-.08-.72-.16-1.84.03-2.63.17-.72 1.12-4.74 1.12-4.74s-.29-.57-.29-1.41c0-1.32.77-2.31 1.72-2.31.81 0 1.2.61 1.2 1.34 0 .82-.52 2.04-.79 3.17-.22.94.47 1.71 1.4 1.71 1.68 0 2.97-1.77 2.97-4.33 0-2.26-1.63-3.84-3.95-3.84-2.69 0-4.27 2.02-4.27 4.11 0 .81.31 1.69.7 2.16.08.09.09.17.07.26-.07.3-.24.94-.27 1.07-.04.18-.14.22-.33.13-1.23-.57-2-2.37-2-3.81 0-3.1 2.25-5.94 6.49-5.94 3.41 0 6.06 2.43 6.06 5.67 0 3.39-2.14 6.11-5.1 6.11-1 0-1.93-.52-2.25-1.13l-.61 2.33c-.22.86-.82 1.93-1.22 2.59.92.28 1.9.44 2.91.44 5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════ LIGHTBOX ═══════════ -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <div class="lightbox-stage">
+    <button class="lightbox-arrow lightbox-arrow--prev" id="lbPrev">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="">
+    <button class="lightbox-arrow lightbox-arrow--next" id="lbNext">
+      <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+    </button>
+  </div>
+  <div class="lightbox-caption">
+    <div class="lightbox-caption-title" id="lightboxTitle"></div>
+    <div class="lightbox-caption-cat" id="lightboxCat"></div>
+    <div class="lightbox-counter" id="lightboxCounter"></div>
+  </div>
+  <div class="lightbox-thumbs" id="lightboxThumbs"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   PROJECT DATA — images is now an array
+   ═══════════════════════════════════════════ */
+const projects = [
+  {
+    name: 'Horizon Residence',
+    category: 'residential',
+    desc: 'A cantilevered lakeside retreat that dissolves the boundary between interior warmth and the vast Nordic landscape. Raw timber and floor-to-ceiling glass orchestrate an ever-changing dialogue with the water.',
+    images: [
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
+      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80',
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Vaulted Market Hall',
+    category: 'commercial',
+    desc: 'A contemporary reinterpretation of the traditional market arcade, featuring parabolic concrete vaults that channel natural light deep into the trading floor while framing views of the historic quarter.',
+    images: [
+      'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80',
+      'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
+      'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80'
+    ]
+  },
+  {
+    name: 'The Fold Pavilion',
+    category: 'cultural',
+    desc: 'An origami-inspired exhibition space whose pleated Corten steel skin weathers and shifts with the seasons, making the building itself a living exhibit of material transformation.',
+    images: [
+      'https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=800&q=80',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Terrace Tower',
+    category: 'residential',
+    desc: 'A 22-storey residential tower where staggered balconies create a vertical garden city. Each apartment enjoys private outdoor space wrapped in a curtain of cascading greenery.',
+    images: [
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80',
+      'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&q=80',
+      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80',
+      'https://images.unsplash.com/photo-1600573472592-401b489a3cdc?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Lumen Office Campus',
+    category: 'commercial',
+    desc: 'Three low-rise volumes connected by glazed bridges hover above a public park. The campus prioritizes biophilic design with courtyards, green roofs, and a central atrium open to the sky.',
+    images: [
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
+      'https://images.unsplash.com/photo-1554469384-e58fac16e23a?w=800&q=80',
+      'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Confluence Bridge Park',
+    category: 'urban',
+    desc: 'A decommissioned railway bridge transformed into a linear urban park spanning two riverbanks. Weathered steel planters and cantilevered decks create pockets of calm above the flowing water.',
+    images: [
+      'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=800&q=80',
+      'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Stone Gallery',
+    category: 'cultural',
+    desc: 'An underground gallery carved into a limestone hillside, where raw rock walls meet precision-cast concrete. Skylights cut through the earth, drawing shafts of daylight onto the sculpture courts.',
+    images: [
+      'https://images.unsplash.com/photo-1534237710431-e2fc698436d0?w=800&q=80',
+      'https://images.unsplash.com/photo-1572947650440-e8a97ef053b2?w=800&q=80',
+      'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&q=80'
+    ]
+  },
+  {
+    name: 'The Green Corridor',
+    category: 'urban',
+    desc: 'A master-planned pedestrian boulevard that stitches together previously disconnected neighborhoods through a sequence of micro-parks, water features, and shaded arcades.',
+    images: [
+      'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&q=80',
+      'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800&q=80',
+      'https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=800&q=80'
+    ]
+  }
+];
+
+/* ═══════════════════════════════════════════
+   LOADER
+   ═══════════════════════════════════════════ */
+const loaderText = document.getElementById('loaderText');
+const word = 'ATELIER';
+word.split('').forEach((char, i) => {
+  const span = document.createElement('span');
+  span.textContent = char;
+  span.style.animationDelay = `${i * 0.07}s`;
+  loaderText.appendChild(span);
+});
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+    document.getElementById('heroBg').classList.add('loaded');
+  }, 1200);
+});
+
+/* ═══════════════════════════════════════════
+   RENDER PROJECT CARDS (with carousel)
+   ═══════════════════════════════════════════ */
+const grid = document.getElementById('projectsGrid');
+
+function renderCards(data) {
+  grid.innerHTML = '';
+  data.forEach((p, i) => {
+    const card = document.createElement('article');
+    card.className = 'project-card';
+    card.dataset.category = p.category;
+    card.dataset.projectIndex = projects.indexOf(p);
+    card.style.transitionDelay = `${i * 0.08}s`;
+
+    const multi = p.images.length > 1;
+    const slides = p.images.map((src, si) => `
+      <div class="card-carousel-slide">
+        <img class="project-img" src="${src}" alt="${p.name} — image ${si + 1}" loading="lazy">
+      </div>
+    `).join('');
+
+    const dots = p.images.map((_, di) => `
+      <button class="card-dot${di === 0 ? ' active' : ''}" data-slide="${di}"></button>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="project-img-wrap">
+        <div class="card-carousel" data-current="0">
+          ${slides}
+        </div>
+        <button class="card-arrow card-arrow--prev" ${!multi ? 'hidden' : ''}>
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="card-arrow card-arrow--next" ${!multi ? 'hidden' : ''}>
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="card-dots" ${!multi ? 'hidden' : ''}>${dots}</div>
+        <div class="project-overlay">
+          <span class="project-overlay-text">View Gallery</span>
+          <span class="project-overlay-icon">
+            <svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+          </span>
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-category">${p.category}</div>
+        <h3 class="project-name">${p.name}</h3>
+        <p class="project-desc">${p.desc}</p>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+  initCardCarousels();
+  observeCards();
+}
+
+/* ═══════════════════════════════════════════
+   CARD CAROUSEL LOGIC
+   ═══════════════════════════════════════════ */
+function initCardCarousels() {
+  grid.querySelectorAll('.project-card').forEach(card => {
+    const carousel = card.querySelector('.card-carousel');
+    const dots = card.querySelectorAll('.card-dot');
+    const prevBtn = card.querySelector('.card-arrow--prev');
+    const nextBtn = card.querySelector('.card-arrow--next');
+    const total = dots.length;
+    if (total <= 1) return;
+
+    function goTo(index) {
+      const clamped = ((index % total) + total) % total;
+      carousel.dataset.current = clamped;
+      carousel.style.transform = `translateX(-${clamped * 100}%)`;
+      dots.forEach((d, di) => d.classList.toggle('active', di === clamped));
+    }
+
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      goTo(+carousel.dataset.current - 1);
+    });
+
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      goTo(+carousel.dataset.current + 1);
+    });
+
+    dots.forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        goTo(+dot.dataset.slide);
+      });
+    });
+  });
+}
+
+renderCards(projects);
+
+/* ═══════════════════════════════════════════
+   INTERSECTION OBSERVER — CARD REVEAL
+   ═══════════════════════════════════════════ */
+function observeCards() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.project-card').forEach(card => observer.observe(card));
+}
+
+/* ═══════════════════════════════════════════
+   STATEMENT REVEAL
+   ═══════════════════════════════════════════ */
+const statementObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      statementObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+statementObserver.observe(document.getElementById('statementText'));
+statementObserver.observe(document.getElementById('statementAuthor'));
+
+/* ═══════════════════════════════════════════
+   FILTER SYSTEM
+   ═══════════════════════════════════════════ */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    const filtered = filter === 'all' ? projects : projects.filter(p => p.category === filter);
+    renderCards(filtered);
+  });
+});
+
+/* ═══════════════════════════════════════════
+   LIGHTBOX GALLERY
+   ═══════════════════════════════════════════ */
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxTitle = document.getElementById('lightboxTitle');
+const lightboxCat = document.getElementById('lightboxCat');
+const lightboxCounter = document.getElementById('lightboxCounter');
+const lightboxThumbs = document.getElementById('lightboxThumbs');
+const lbPrev = document.getElementById('lbPrev');
+const lbNext = document.getElementById('lbNext');
+
+let lbImages = [];
+let lbCurrent = 0;
+let lbProjectName = '';
+let lbProjectCat = '';
+
+function openLightbox(project, startIndex) {
+  lbImages = project.images;
+  lbProjectName = project.name;
+  lbProjectCat = project.category;
+  lbCurrent = startIndex || 0;
+
+  // Build thumbnails
+  lightboxThumbs.innerHTML = lbImages.map((src, i) =>
+    `<img class="lightbox-thumb${i === lbCurrent ? ' active' : ''}" src="${src}" alt="${lbProjectName} thumbnail ${i + 1}" data-index="${i}">`
+  ).join('');
+
+  updateLightboxImage();
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function updateLightboxImage() {
+  lightboxImg.classList.add('fading');
+  setTimeout(() => {
+    lightboxImg.src = lbImages[lbCurrent].replace('w=800', 'w=1600');
+    lightboxImg.alt = `${lbProjectName} — image ${lbCurrent + 1}`;
+    lightboxImg.onload = () => lightboxImg.classList.remove('fading');
+    // Fallback in case cached
+    setTimeout(() => lightboxImg.classList.remove('fading'), 100);
+  }, 150);
+
+  lightboxTitle.textContent = lbProjectName;
+  lightboxCat.textContent = lbProjectCat;
+  lightboxCounter.textContent = `${lbCurrent + 1} / ${lbImages.length}`;
+
+  // Update thumb highlights
+  lightboxThumbs.querySelectorAll('.lightbox-thumb').forEach((t, i) => {
+    t.classList.toggle('active', i === lbCurrent);
+  });
+
+  // Scroll active thumb into view
+  const activeThumb = lightboxThumbs.querySelector('.lightbox-thumb.active');
+  if (activeThumb) activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+  // Hide arrows if only 1 image
+  lbPrev.style.display = lbImages.length <= 1 ? 'none' : '';
+  lbNext.style.display = lbImages.length <= 1 ? 'none' : '';
+}
+
+function lbGoTo(index) {
+  lbCurrent = ((index % lbImages.length) + lbImages.length) % lbImages.length;
+  updateLightboxImage();
+}
+
+lbPrev.addEventListener('click', (e) => { e.stopPropagation(); lbGoTo(lbCurrent - 1); });
+lbNext.addEventListener('click', (e) => { e.stopPropagation(); lbGoTo(lbCurrent + 1); });
+
+lightboxThumbs.addEventListener('click', (e) => {
+  const thumb = e.target.closest('.lightbox-thumb');
+  if (thumb) lbGoTo(+thumb.dataset.index);
+});
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Open from card click (overlay area)
+grid.addEventListener('click', (e) => {
+  // Ignore if clicking card arrows/dots
+  if (e.target.closest('.card-arrow') || e.target.closest('.card-dot')) return;
+
+  const card = e.target.closest('.project-card');
+  if (!card) return;
+
+  const projectIdx = +card.dataset.projectIndex;
+  const project = projects[projectIdx];
+  const carousel = card.querySelector('.card-carousel');
+  const currentSlide = carousel ? +carousel.dataset.current : 0;
+
+  openLightbox(project, currentSlide);
+});
+
+// Close lightbox
+lightbox.addEventListener('click', (e) => {
+  if (e.target === lightbox || e.target.closest('.lightbox-close')) closeLightbox();
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (!lightbox.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') lbGoTo(lbCurrent - 1);
+  if (e.key === 'ArrowRight') lbGoTo(lbCurrent + 1);
+});
+
+/* ═══════════════════════════════════════════
+   NAV SCROLL STATE
+   ═══════════════════════════════════════════ */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 80);
+}, { passive: true });
+</script>
+
+</body>
+</html>
