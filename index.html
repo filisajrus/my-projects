@@ -392,6 +392,128 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════
+   PAGINATION
+   ═══════════════════════════════════════════ */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 3.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: paginationReveal 0.6s var(--ease-out) 0.3s forwards;
+}
+
+.pagination.hidden {
+  display: none;
+}
+
+@keyframes paginationReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  padding: 0 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  transition: all 0.35s var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+
+.pagination-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bg-dark);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.35s var(--ease-out);
+  z-index: 0;
+}
+
+.pagination-btn:hover::before {
+  transform: scaleY(1);
+}
+
+.pagination-btn:hover {
+  color: var(--text-light);
+  border-color: var(--bg-dark);
+}
+
+.pagination-btn span,
+.pagination-btn svg {
+  position: relative;
+  z-index: 1;
+}
+
+.pagination-btn.active {
+  background: var(--bg-dark);
+  color: var(--text-light);
+  border-color: var(--bg-dark);
+  pointer-events: none;
+}
+
+.pagination-btn.active::before {
+  transform: scaleY(1);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.pagination-arrow {
+  min-width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--border);
+}
+
+.pagination-arrow svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2.75rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.15em;
+  pointer-events: none;
+}
+
+.pagination-info {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* ═══════════════════════════════════════════
    PROJECT CARD
    ═══════════════════════════════════════════ */
 .project-card {
@@ -1080,6 +1202,20 @@ body::before {
   .project-name {
     font-size: 1.35rem;
   }
+
+  .pagination {
+    gap: 0.3rem;
+  }
+
+  .pagination-btn {
+    min-width: 2.25rem;
+    height: 2.25rem;
+    font-size: 0.7rem;
+  }
+
+  .pagination-ellipsis {
+    min-width: 1.5rem;
+  }
 }
 </style>
 </head>
@@ -1135,6 +1271,9 @@ body::before {
   <div class="projects-grid" id="projectsGrid">
     <!-- Cards injected by JS -->
   </div>
+
+  <nav class="pagination hidden" id="pagination" aria-label="Project pages"></nav>
+  <div class="pagination-info hidden" id="paginationInfo"></div>
 </section>
 
 <!-- ═══════════ STATEMENT ═══════════ -->
@@ -1284,6 +1423,112 @@ const projects = [
       'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800&q=80',
       'https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=800&q=80'
     ]
+  },
+  {
+    name: 'Dune House',
+    category: 'residential',
+    desc: 'A low-slung coastal dwelling embedded into sand dunes, its rammed-earth walls echoing the colours of the shoreline. Horizontal slits frame the Atlantic horizon from every room.',
+    images: [
+      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80',
+      'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&q=80',
+      'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Meridian Tower',
+    category: 'commercial',
+    desc: 'A 40-storey mixed-use skyscraper with a diagrid exoskeleton that eliminates interior columns, offering open floor plates flooded with panoramic daylight across the business district.',
+    images: [
+      'https://images.unsplash.com/photo-1478860409698-8707f313ee8b?w=800&q=80',
+      'https://images.unsplash.com/photo-1464938050520-ef2571f65114?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Ember Theatre',
+    category: 'cultural',
+    desc: 'A 600-seat performance hall wrapped in charred timber cladding. The auditorium floats within a glass outer shell, creating a luminous lantern effect that glows across the river at night.',
+    images: [
+      'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=800&q=80',
+      'https://images.unsplash.com/photo-1503095396549-807759245b35?w=800&q=80',
+      'https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Cloud Villa',
+    category: 'residential',
+    desc: 'Perched atop a mountain ridge, this concrete and glass retreat appears to float among the clouds. Cantilevered terraces extend over a sheer drop, blurring the line between shelter and sky.',
+    images: [
+      'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&q=80',
+      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80',
+      'https://images.unsplash.com/photo-1600585153490-76fb20a32601?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Nexus Co-working Hub',
+    category: 'commercial',
+    desc: 'A retrofitted industrial warehouse transformed into a vibrant co-working space. Exposed steel trusses meet warm plywood pods, creating intimate work zones within a cathedral-scale volume.',
+    images: [
+      'https://images.unsplash.com/photo-1497215842964-222b430dc094?w=800&q=80',
+      'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Riverbank Amphitheatre',
+    category: 'cultural',
+    desc: 'An open-air amphitheatre carved into the slope of a riverbank, seating 2,000 beneath a sweeping tensile canopy. The stage floats on the water, merging performance with the rhythm of the current.',
+    images: [
+      'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80',
+      'https://images.unsplash.com/photo-1514533212735-5df27d970db0?w=800&q=80',
+      'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Harbour Quarter',
+    category: 'urban',
+    desc: 'A mixed-use waterfront district built on reclaimed docklands. Timber-clad residential blocks, floating markets, and a continuous public promenade revive a forgotten industrial waterfront.',
+    images: [
+      'https://images.unsplash.com/photo-1514924013411-cbf25faa35bb?w=800&q=80',
+      'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Canopy Residence',
+    category: 'residential',
+    desc: 'A tropical family home sheltered beneath a single sweeping timber roof that extends far beyond the walls, blurring thresholds between living spaces and the lush garden courtyard.',
+    images: [
+      'https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800&q=80',
+      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80',
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Prism Data Centre',
+    category: 'commercial',
+    desc: 'A hyper-efficient data centre whose faceted aluminium facade disperses heat passively. The angular form channels prevailing winds through the server halls, reducing cooling energy by 40 percent.',
+    images: [
+      'https://images.unsplash.com/photo-1486718448742-163732cd1544?w=800&q=80',
+      'https://images.unsplash.com/photo-1451976426598-a7593bd6d0b2?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Silk Museum',
+    category: 'cultural',
+    desc: 'A museum dedicated to the textile arts, draped in perforated bronze screens that cast shifting shadow patterns across the galleries, evoking the weave of fabric in architectural form.',
+    images: [
+      'https://images.unsplash.com/photo-1554907984-15263bfd63bd?w=800&q=80',
+      'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=800&q=80',
+      'https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=800&q=80'
+    ]
+  },
+  {
+    name: 'Metro Garden Line',
+    category: 'urban',
+    desc: 'An elevated metro line reimagined as a linear botanical garden. Stations double as greenhouses, and the rail corridor is planted with native species, creating a pollinator highway above the city.',
+    images: [
+      'https://images.unsplash.com/photo-1517935706615-2717063c2225?w=800&q=80',
+      'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=800&q=80',
+      'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=800&q=80'
+    ]
   }
 ];
 
@@ -1307,13 +1552,31 @@ window.addEventListener('load', () => {
 });
 
 /* ═══════════════════════════════════════════
+   PAGINATION STATE
+   ═══════════════════════════════════════════ */
+const ITEMS_PER_PAGE = 12;
+let currentPage = 1;
+let currentData = projects; // filtered dataset
+
+/* ═══════════════════════════════════════════
    RENDER PROJECT CARDS (with carousel)
    ═══════════════════════════════════════════ */
 const grid = document.getElementById('projectsGrid');
+const paginationEl = document.getElementById('pagination');
+const paginationInfoEl = document.getElementById('paginationInfo');
 
-function renderCards(data) {
+function renderCards(data, page) {
+  currentData = data;
+  currentPage = page || 1;
+
+  const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
+  if (currentPage > totalPages) currentPage = totalPages || 1;
+
+  const start = (currentPage - 1) * ITEMS_PER_PAGE;
+  const pageData = data.slice(start, start + ITEMS_PER_PAGE);
+
   grid.innerHTML = '';
-  data.forEach((p, i) => {
+  pageData.forEach((p, i) => {
     const card = document.createElement('article');
     card.className = 'project-card';
     card.dataset.category = p.category;
@@ -1360,6 +1623,66 @@ function renderCards(data) {
   });
   initCardCarousels();
   observeCards();
+  renderPagination(data.length, totalPages);
+}
+
+/* ═══════════════════════════════════════════
+   RENDER PAGINATION CONTROLS
+   ═══════════════════════════════════════════ */
+function renderPagination(totalItems, totalPages) {
+  if (totalPages <= 1) {
+    paginationEl.classList.add('hidden');
+    paginationInfoEl.classList.add('hidden');
+    return;
+  }
+
+  paginationEl.classList.remove('hidden');
+  paginationInfoEl.classList.remove('hidden');
+
+  // Info text
+  const start = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const end = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
+  paginationInfoEl.textContent = `Showing ${start}–${end} of ${totalItems} projects`;
+
+  // Build page numbers with ellipsis
+  let pages = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (currentPage > 3) pages.push('…');
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+      pages.push(i);
+    }
+    if (currentPage < totalPages - 2) pages.push('…');
+    pages.push(totalPages);
+  }
+
+  paginationEl.innerHTML = `
+    <button class="pagination-btn pagination-arrow" ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}" aria-label="Previous page">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    ${pages.map(p =>
+      p === '…'
+        ? `<span class="pagination-ellipsis">…</span>`
+        : `<button class="pagination-btn${p === currentPage ? ' active' : ''}" data-page="${p}"><span>${p}</span></button>`
+    ).join('')}
+    <button class="pagination-btn pagination-arrow" ${currentPage === totalPages ? 'disabled' : ''} data-page="${currentPage + 1}" aria-label="Next page">
+      <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+    </button>
+  `;
+
+  // Bind click events
+  paginationEl.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const page = +btn.dataset.page;
+      if (page >= 1 && page <= totalPages) {
+        renderCards(currentData, page);
+        // Smooth scroll to projects section
+        document.getElementById('projects').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
 }
 
 /* ═══════════════════════════════════════════
@@ -1400,7 +1723,7 @@ function initCardCarousels() {
   });
 }
 
-renderCards(projects);
+renderCards(projects, 1);
 
 /* ═══════════════════════════════════════════
    INTERSECTION OBSERVER — CARD REVEAL
@@ -1442,7 +1765,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.classList.add('active');
     const filter = btn.dataset.filter;
     const filtered = filter === 'all' ? projects : projects.filter(p => p.category === filter);
-    renderCards(filtered);
+    renderCards(filtered, 1);
   });
 });
 
